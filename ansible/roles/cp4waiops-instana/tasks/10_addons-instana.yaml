@@ -757,7 +757,9 @@
   when: global_config.create_ocp_notifications | default(true) == true  
 
 - name:   🕦 INSTANA - Wait for Core Instance to become ready
-  shell: oc -n instana-core get core instana-core -o=custom-columns=STATUS:.status.componentsStatus --no-headers
+  shell: 
+    oc -n instana-core get core instana-core -o=custom-columns=STATUS:.status.componentsStatus --no-headers
+    oc patch core instana-core --type=merge -n instana-core --patch '{"spec":{"resourceProfile":{{ current_cp4waiops_feature.resourceProfile }}}}'
   register: kubectl_get_pods
   until: kubectl_get_pods.stdout == "Ready"
   retries: 500
@@ -774,6 +776,9 @@
   kubernetes.core.k8s:
     state: present
     template: ./templates/instana/instana-unit.j2
+    shell:
+      oc patch units.instana.io aiops-dev --type=merge -n instana-units --patch '{"spec":{"resourceProfile":{{ current_cp4waiops_feature.resourceProfile }}}}'
+
 
 
 # --------------------------------------------------------------------------------------------------------------------------------------
@@ -854,7 +859,7 @@
 - name: 🚀 INSTANA - Scale Operator to 0 and Patch Appdata-Writer 
   shell: |
     oc scale deployment  -n instana-operator instana-operator --replicas=0
-    oc patch Deployment -n instana-core appdata-writer  -p '{"spec": {"template": {"spec": {"containers": [{"name": "appdata-writer","securityContext": {"capabilities": {"drop": ["ALL"]},"privileged": true,"runAsNonRoot": false,"readOnlyRootFilesystem": false,"allowPrivilegeEscalation": true},"image": "containers.instana.io/instana/release/product/appdata-writer:3.247.193-0"}]}}}}'     
+    oc patch Deployment -n instana-core appdata-writer  -p '{"spec": {"template": {"spec": {"containers": [{"name": "appdata-writer","securityContext": {"capabilities": {"drop": ["ALL"]},"privileged": true,"runAsNonRoot": false,"readOnlyRootFilesystem": false,"allowPrivilegeEscalation": true},"image": "containers.instana.io/instana/release/product/appdata-writer:3.247.193-0"}]}}}}'
   ignore_errors: true
   register: output
   args:
