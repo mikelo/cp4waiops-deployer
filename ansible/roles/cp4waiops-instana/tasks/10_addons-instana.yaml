@@ -426,17 +426,23 @@
         echo "Kubectl Instana Plugin already installed"
     else
         OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+        ARCH="amd64"
         echo "Installing Kubectl Instana Plugin for $OS"
+        if uname -a | grep -q "ppc64le"; then
+          echo "ppc64le detected!!"
+          ARCH="ppc64le"
+        fi
+
         if [ "${OS}" == "darwin" ]; then
               wget https://self-hosted.instana.io/kubectl/kubectl-instana-darwin_amd64-release-{{current_cp4waiops_feature.instana_version | default("241-0") }}.tar.gz
               tar xfvz kubectl-instana-darwin_amd64-release-{{current_cp4waiops_feature.instana_version | default("241-0") }}.tar.gz
               sudo mv kubectl-instana /usr/local/bin/kubectl-instana
               rm kubectl-instana-darwin_amd64-release-{{current_cp4waiops_feature.instana_version | default("241-0") }}.tar.gz
         else
-            wget https://self-hosted.instana.io/kubectl/kubectl-instana-linux_amd64-release-{{current_cp4waiops_feature.instana_version | default("241-0") }}.tar.gz
-            tar xfvz kubectl-instana-linux_amd64-release-{{current_cp4waiops_feature.instana_version | default("241-0") }}.tar.gz
+            wget https://self-hosted.instana.io/kubectl/kubectl-instana-linux_${ARCH}-release-{{current_cp4waiops_feature.instana_version | default("241-0") }}.tar.gz
+            tar xfvz kubectl-instana-linux_${ARCH}-release-{{current_cp4waiops_feature.instana_version | default("241-0") }}.tar.gz
             mv kubectl-instana /usr/local/bin/kubectl-instana
-            rm kubectl-instana-linux_amd64-release-{{current_cp4waiops_feature.instana_version | default("241-0") }}.tar.gz
+            rm kubectl-instana-linux_${ARCH}-release-{{current_cp4waiops_feature.instana_version | default("241-0") }}.tar.gz
         fi
     fi
     if [ -x "$(command -v kubectl-instana)" ]; then
