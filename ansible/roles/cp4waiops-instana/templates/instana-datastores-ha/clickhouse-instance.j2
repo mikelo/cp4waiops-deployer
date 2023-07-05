@@ -61,7 +61,7 @@ spec:
         spec:
           containers:
             - name: instana-clickhouse
-              image: containers.instana.io/instana/release/product/k8s/clickhouse:22.3.15.33-1-lts-ibm_v0.16.0
+              image: containers.instana.io/instana/release/product/clickhouse:22.3.15.33_v0.76.0
               command:
                 - clickhouse-server
                 - --config-file=/etc/clickhouse-server/config.xml
